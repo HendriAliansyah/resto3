@@ -8,8 +8,6 @@ import 'package:resto2/services/restaurant_service.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
-import 'package:uuid/uuid.dart'; // Import the uuid package
-import '../providers/auth_providers.dart'; // Import this to access the session provider
 
 class AuthController extends StateNotifier<bool> {
   final AuthService _authService;
@@ -63,25 +61,10 @@ class AuthController extends StateNotifier<bool> {
   Future<bool> signIn({required String email, required String password}) async {
     state = true;
     try {
-      final credentials = await _authService.signInWithEmailAndPassword(
+      await _authService.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      if (credentials.user != null) {
-        // Generate a unique session token
-        final sessionToken = Uuid().v4();
-
-        // Store it in Firestore
-        await _firestoreService.updateUserSessionToken(
-          credentials.user!.uid,
-          sessionToken,
-        );
-
-        // Store it locally in our provider
-        _ref.read(sessionTokenProvider.notifier).state = sessionToken;
-      }
-
       state = false;
       return true;
     } catch (e) {
@@ -102,13 +85,7 @@ class AuthController extends StateNotifier<bool> {
   }
 
   Future<void> signOut() async {
-    final user = _authService.getCurrentUser();
-    if (user != null) {
-      // Clear the session token on sign out
-      await _firestoreService.updateUserSessionToken(user.uid, null);
-    }
     await _authService.signOut();
-    _ref.read(sessionTokenProvider.notifier).state = null;
   }
 
   Future<void> createRestaurantAndAssignOwner({

@@ -38,9 +38,6 @@ final currentUserProvider = StreamProvider.autoDispose<AppUser?>((ref) {
   return Stream.value(null);
 });
 
-// Add this provider to hold the current session token
-final sessionTokenProvider = StateProvider<String?>((ref) => null);
-
 final authControllerProvider =
     StateNotifierProvider.autoDispose<AuthController, bool>((ref) {
       return AuthController(
