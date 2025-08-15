@@ -58,6 +58,13 @@ class FirestoreService {
     });
   }
 
+  // Add this new method
+  Future<void> updateUserSessionToken(String uid, String? token) async {
+    await _db.collection(DBConstants.usersCollection).doc(uid).update({
+      'sessionToken': token,
+    });
+  }
+
   Stream<UserSettings> watchUserSettings(String uid) {
     return _db
         .collection(DBConstants.usersCollection)

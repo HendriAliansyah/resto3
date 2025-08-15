@@ -7,6 +7,7 @@ class AppUser {
   final String? restaurantId;
   final UserRole? role;
   final bool isDisabled;
+  final String? sessionToken; // Add this line
 
   AppUser({
     required this.uid,
@@ -15,6 +16,7 @@ class AppUser {
     this.restaurantId,
     this.role,
     this.isDisabled = false,
+    this.sessionToken, // Add this line
   });
 
   Map<String, dynamic> toJson() {
@@ -25,6 +27,7 @@ class AppUser {
       'restaurantId': restaurantId,
       'role': role?.name,
       'isDisabled': isDisabled,
+      'sessionToken': sessionToken, // Add this line
     };
   }
 
@@ -42,6 +45,7 @@ class AppUser {
               )
               : null,
       isDisabled: json['isDisabled'] ?? false,
+      sessionToken: json['sessionToken'], // Add this line
     );
   }
 }

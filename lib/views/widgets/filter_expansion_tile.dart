@@ -18,8 +18,21 @@ class FilterExpansionTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       clipBehavior: Clip.antiAlias,
+      elevation: 2.0, // Add a subtle shadow
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0), // Rounded corners
+        side: BorderSide(
+          color: Theme.of(context).dividerColor, // A light border
+          width: 1.0,
+        ),
+      ),
       child: ExpansionTile(
-        title: Text(title),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600, // Make the title bolder
+          ),
+        ),
         initiallyExpanded: initiallyExpanded,
         children: [
           Padding(
