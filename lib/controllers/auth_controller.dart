@@ -1,10 +1,10 @@
 import 'dart:io';
-
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:resto2/models/restaurant_model.dart';
 import 'package:resto2/models/role_permission_model.dart';
 import 'package:resto2/providers/storage_provider.dart';
 import 'package:resto2/services/restaurant_service.dart';
+import 'package:uuid/uuid.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
@@ -19,7 +19,7 @@ class AuthController extends StateNotifier<bool> {
     this._authService,
     this._firestoreService,
     this._restaurantService,
-    this._ref, // Pass the ref
+    this._ref,
   ) : super(false);
 
   Future<bool> signUp({
@@ -36,14 +36,13 @@ class AuthController extends StateNotifier<bool> {
       final user = userCredential.user;
 
       if (user != null) {
-        // THE FIX: Ensure the user document is created with all necessary fields.
         final newUser = AppUser(
           uid: user.uid,
           email: email,
           displayName: displayName,
           role: null,
           restaurantId: null,
-          isDisabled: false, // Explicitly set to false on creation
+          isDisabled: false,
         );
 
         await _firestoreService.addUser(newUser);
@@ -61,10 +60,19 @@ class AuthController extends StateNotifier<bool> {
   Future<bool> signIn({required String email, required String password}) async {
     state = true;
     try {
-      await _authService.signInWithEmailAndPassword(
+      final userCredential = await _authService.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+      final user = userCredential.user;
+
+      if (user != null) {
+        final sessionToken = const Uuid().v4();
+        await _firestoreService.updateUserSessionToken(
+          uid: user.uid,
+          token: sessionToken,
+        );
+      }
       state = false;
       return true;
     } catch (e) {
@@ -85,6 +93,8 @@ class AuthController extends StateNotifier<bool> {
   }
 
   Future<void> signOut() async {
+    // THE FIX IS HERE: We no longer clear the token manually.
+    // The onDisconnect handler and Cloud Function will take care of it.
     await _authService.signOut();
   }
 
@@ -103,10 +113,9 @@ class AuthController extends StateNotifier<bool> {
     String? logoPath;
 
     try {
-      // **THE FIX:** The ownerId is now correctly assigned here.
       final newRestaurant = RestaurantModel(
-        id: '', // Firestore will generate this
-        ownerId: user.uid, // This ensures the owner is linked
+        id: '',
+        ownerId: user.uid,
         name: restaurantName,
         address: address,
         phone: phone,

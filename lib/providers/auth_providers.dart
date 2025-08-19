@@ -27,7 +27,6 @@ final authStateChangeProvider = StreamProvider<User?>(
   (ref) => ref.watch(authServiceProvider).authStateChanges,
 );
 
-// New provider to stream the custom AppUser object from Firestore
 final currentUserProvider = StreamProvider.autoDispose<AppUser?>((ref) {
   final authState = ref.watch(authStateChangeProvider);
   final firestoreService = ref.watch(firestoreServiceProvider);
@@ -43,9 +42,10 @@ final authControllerProvider =
       return AuthController(
         ref.read(authServiceProvider),
         ref.read(firestoreServiceProvider),
-        ref.read(
-          restaurantServiceProvider,
-        ), // This now correctly references the single provider
+        ref.read(restaurantServiceProvider),
         ref,
       );
     });
+
+// Add this provider to hold the session token for the current device
+final localSessionTokenProvider = StateProvider<String?>((ref) => null);

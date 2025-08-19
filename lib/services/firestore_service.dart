@@ -77,4 +77,14 @@ class FirestoreService {
         .doc('preferences')
         .set({'themeMode': themeMode}, SetOptions(merge: true));
   }
+
+  // Add this method to update the session token
+  Future<void> updateUserSessionToken({
+    required String uid,
+    required String? token,
+  }) async {
+    await _db.collection(DBConstants.usersCollection).doc(uid).update({
+      'sessionToken': token,
+    });
+  }
 }
