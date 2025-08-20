@@ -1,3 +1,5 @@
+// lib/main.dart
+
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -42,7 +44,11 @@ class MyApp extends ConsumerWidget {
     final previewThemeMode = ref.watch(previewThemeModeProvider);
 
     // This listener now handles the core session validation logic from the app's root
-    ref.listen<AsyncValue<AppUser?>>(currentUserProvider, (previous, next) {
+    ref.listen<AsyncValue<AppUser?>>(currentUserProvider, (
+      previous,
+      next,
+    ) async {
+      // Added async
       final user = next.asData?.value;
       if (user != null) {
         final localToken = ref.read(localSessionTokenProvider);
@@ -50,6 +56,8 @@ class MyApp extends ConsumerWidget {
 
         // When the app first establishes a session, store its token locally.
         if (localToken == null && remoteToken != null) {
+          // Add a short delay to allow the backend to catch up
+          await Future.delayed(const Duration(milliseconds: 500));
           ref.read(localSessionTokenProvider.notifier).state = remoteToken;
         }
         // If we have a local token and the remote token has changed, sign out.

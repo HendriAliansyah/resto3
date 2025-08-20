@@ -1,4 +1,3 @@
-
 const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {onValueWritten} = require("firebase-functions/v2/database");
 const {initializeApp} = require("firebase-admin/app");
@@ -16,16 +15,39 @@ exports.onUserPresenceChange = onValueWritten("status/{uid}", async (event) => {
 
   // If the user has gone offline, clear their session token in Firestore.
   if (status && status.state === "offline") {
+    // Get the token of the device that just went offline.
+    const offlineToken = event.data.before.val()?.sessionToken;
+    if (!offlineToken) {
+      console.log(`User ${uid} went offline but had no session token.`);
+      return;
+    }
+
+    const userDocRef = firestore.collection("users").doc(uid);
+
     try {
-      await firestore.collection("users").doc(uid).update({
-        sessionToken: null,
+      // Use a transaction to prevent race conditions.
+      await firestore.runTransaction(async (transaction) => {
+        const userDoc = await transaction.get(userDocRef);
+        if (!userDoc.exists) {
+          return;
+        }
+
+        const currentToken = userDoc.data().sessionToken;
+
+        // Only clear the token if it matches the one from the offline device.
+        if (currentToken === offlineToken) {
+          transaction.update(userDocRef, {sessionToken: null});
+          console.log(`Session token cleared for user: ${uid}`);
+        } else {
+          console.log(`Session token for user ${uid} has already been updated by a new session. No action taken.`);
+        }
       });
-      console.log(`Session token cleared for user: ${uid}`);
     } catch (error) {
       console.error(`Failed to clear session token for user: ${uid}`, error);
     }
   }
 });
+
 
 exports.onUserStatusChange = onDocumentUpdated("users/{userId}", async (event) => {
   const beforeData = event.data.before.data();

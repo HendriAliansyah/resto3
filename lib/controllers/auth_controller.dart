@@ -1,3 +1,5 @@
+// lib/controllers/auth_controller.dart
+
 import 'dart:io';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:resto2/models/restaurant_model.dart';
