@@ -25,35 +25,37 @@ class TableTypeManagementPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Table Type Master')),
       drawer: const AppDrawer(),
-      body: tableTypesAsync.when(
-        data:
-            (types) => ListView.builder(
-              itemCount: types.length,
-              itemBuilder: (_, index) {
-                final type = types[index];
-                return ListTile(
-                  title: Text(type.name),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () => showTableTypeDialog(tableType: type),
-                        icon: const Icon(Icons.edit_outlined),
-                      ),
-                      IconButton(
-                        onPressed: () => controller.deleteTableType(type.id),
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.redAccent,
+      body: SafeArea(
+        child: tableTypesAsync.when(
+          data:
+              (types) => ListView.builder(
+                itemCount: types.length,
+                itemBuilder: (_, index) {
+                  final type = types[index];
+                  return ListTile(
+                    title: Text(type.name),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () => showTableTypeDialog(tableType: type),
+                          icon: const Icon(Icons.edit_outlined),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text(e.toString())),
+                        IconButton(
+                          onPressed: () => controller.deleteTableType(type.id),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.redAccent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, st) => Center(child: Text(e.toString())),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: showTableTypeDialog,

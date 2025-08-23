@@ -128,124 +128,127 @@ class MasterRestaurantPage extends HookConsumerWidget {
         ),
       ),
       drawer: const AppDrawer(),
-      body: restaurantAsync.when(
-        data:
-            (restaurant) => ListView(
-              padding: const EdgeInsets.all(24.0),
-              children: [
-                Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Theme.of(context).colorScheme.surface,
-                        backgroundImage: getBackgroundImage(),
-                        child:
-                            getBackgroundImage() == null
-                                ? const Icon(Icons.storefront, size: 50)
-                                : null,
-                      ),
-                      if (isLoading)
-                        const CircleAvatar(
+      body: SafeArea(
+        child: restaurantAsync.when(
+          data:
+              (restaurant) => ListView(
+                padding: const EdgeInsets.all(24.0),
+                children: [
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleAvatar(
                           radius: 50,
-                          backgroundColor: Colors.black54,
-                          child: LoadingIndicator(),
-                        ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 18,
                           backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.edit,
-                              size: 18,
-                              color: Colors.black,
+                              Theme.of(context).colorScheme.surface,
+                          backgroundImage: getBackgroundImage(),
+                          child:
+                              getBackgroundImage() == null
+                                  ? const Icon(Icons.storefront, size: 50)
+                                  : null,
+                        ),
+                        if (isLoading)
+                          const CircleAvatar(
+                            radius: 50,
+                            backgroundColor: Colors.black54,
+                            child: LoadingIndicator(),
+                          ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: CircleAvatar(
+                            radius: 18,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.edit,
+                                size: 18,
+                                color: Colors.black,
+                              ),
+                              onPressed: isLoading ? null : pickImage,
                             ),
-                            onPressed: isLoading ? null : pickImage,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Form(
-                  key: formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: UIStrings.restaurantName,
+                  const SizedBox(height: 32),
+                  Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: nameController,
+                          decoration: const InputDecoration(
+                            labelText: UIStrings.restaurantName,
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Please enter a name' : null,
                         ),
-                        validator:
-                            (value) =>
-                                value!.isEmpty ? 'Please enter a name' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: addressController,
-                        decoration: const InputDecoration(
-                          labelText: UIStrings.address,
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: addressController,
+                          decoration: const InputDecoration(
+                            labelText: UIStrings.address,
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.isEmpty
+                                      ? 'Please enter an address'
+                                      : null,
                         ),
-                        validator:
-                            (value) =>
-                                value!.isEmpty
-                                    ? 'Please enter an address'
-                                    : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: phoneController,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: UIStrings.phoneNumber,
-                          hintText: UIStrings.phoneNumberHint,
-                          errorText: phoneValidationError.value,
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: phoneController,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            labelText: UIStrings.phoneNumber,
+                            hintText: UIStrings.phoneNumberHint,
+                            errorText: phoneValidationError.value,
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter a phone number';
+                            }
+                            if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                              return 'Please enter only numbers';
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter a phone number';
-                          }
-                          if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                            return 'Please enter only numbers';
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: isLoading ? null : handleSaveChanges,
-                  child:
-                      isLoading
-                          ? const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.0,
-                                  color: Colors.black,
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: isLoading ? null : handleSaveChanges,
+                    child:
+                        isLoading
+                            ? const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 12),
-                              Text(UIStrings.saving),
-                            ],
-                          )
-                          : const Text(UIStrings.saveChanges),
-                ),
-              ],
-            ),
-        loading: () => const LoadingIndicator(),
-        error: (e, st) => Center(child: Text('Error: $e')),
+                                SizedBox(width: 12),
+                                Text(UIStrings.saving),
+                              ],
+                            )
+                            : const Text(UIStrings.saveChanges),
+                  ),
+                ],
+              ),
+          loading: () => const LoadingIndicator(),
+          error: (e, st) => Center(child: Text('Error: $e')),
+        ),
       ),
     );
   }

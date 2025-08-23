@@ -18,30 +18,32 @@ class HomeScreen extends ConsumerWidget {
         actions: const [NotificationBell()],
       ),
       drawer: const AppDrawer(), // Add the drawer here
-      body: currentUser.when(
-        data: (appUser) {
-          if (appUser == null || appUser.role == null) {
-            return const LoadingIndicator();
-          }
+      body: SafeArea(
+        child: currentUser.when(
+          data: (appUser) {
+            if (appUser == null || appUser.role == null) {
+              return const LoadingIndicator();
+            }
 
-          // You can customize the body of the home screen further here.
-          // For now, we'll keep the welcome message.
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Welcome, ${appUser.displayName ?? 'User'}! 👋',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 8),
-                Text('Your role: ${appUser.role!.name}'),
-              ],
-            ),
-          );
-        },
-        loading: () => const LoadingIndicator(),
-        error: (e, st) => Center(child: Text('Error: $e')),
+            // You can customize the body of the home screen further here.
+            // For now, we'll keep the welcome message.
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Welcome, ${appUser.displayName ?? 'User'}! 👋',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Your role: ${appUser.role!.name}'),
+                ],
+              ),
+            );
+          },
+          loading: () => const LoadingIndicator(),
+          error: (e, st) => Center(child: Text('Error: $e')),
+        ),
       ),
     );
   }

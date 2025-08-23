@@ -43,49 +43,54 @@ class CourseManagementPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Course Master')),
       drawer: const AppDrawer(),
-      body: coursesAsync.when(
-        data: (courses) {
-          if (courses.isEmpty) {
-            return const Center(
-              child: Text('No courses found. Add one to get started!'),
-            );
-          }
-          return ListView.builder(
-            itemCount: courses.length,
-            itemBuilder: (context, index) {
-              final course = courses[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ListTile(
-                  title: Text(course.name),
-                  subtitle: Text(course.description),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () => showCourseDialog(course: course),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.redAccent,
-                        ),
-                        onPressed: () async {
-                          await courseController.deleteCourse(course.id);
-                          if (!context.mounted) return;
-                          showSnackBar(context, 'Course deleted.');
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+      body: SafeArea(
+        child: coursesAsync.when(
+          data: (courses) {
+            if (courses.isEmpty) {
+              return const Center(
+                child: Text('No courses found. Add one to get started!'),
               );
-            },
-          );
-        },
-        loading: () => const LoadingIndicator(),
-        error: (e, st) => Center(child: Text('Error: ${e.toString()}')),
+            }
+            return ListView.builder(
+              itemCount: courses.length,
+              itemBuilder: (context, index) {
+                final course = courses[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: ListTile(
+                    title: Text(course.name),
+                    subtitle: Text(course.description),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined),
+                          onPressed: () => showCourseDialog(course: course),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.redAccent,
+                          ),
+                          onPressed: () async {
+                            await courseController.deleteCourse(course.id);
+                            if (!context.mounted) return;
+                            showSnackBar(context, 'Course deleted.');
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          loading: () => const LoadingIndicator(),
+          error: (e, st) => Center(child: Text('Error: ${e.toString()}')),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showCourseDialog(),

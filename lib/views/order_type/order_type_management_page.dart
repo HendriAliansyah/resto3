@@ -23,38 +23,40 @@ class OrderTypeManagementPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Order Type Master')),
       drawer: const AppDrawer(),
-      body: orderTypesAsync.when(
-        data:
-            (types) => ListView.builder(
-              itemCount: types.length,
-              itemBuilder: (_, index) {
-                final type = types[index];
-                return ListTile(
-                  title: Text(type.name),
-                  subtitle: Text(
-                    'Accessible by: ${type.accessibility.name.replaceFirst(type.accessibility.name[0], type.accessibility.name[0].toUpperCase())}',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () => showOrderTypeDialog(orderType: type),
-                        icon: const Icon(Icons.edit_outlined),
-                      ),
-                      IconButton(
-                        onPressed: () => controller.deleteOrderType(type.id),
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.redAccent,
+      body: SafeArea(
+        child: orderTypesAsync.when(
+          data:
+              (types) => ListView.builder(
+                itemCount: types.length,
+                itemBuilder: (_, index) {
+                  final type = types[index];
+                  return ListTile(
+                    title: Text(type.name),
+                    subtitle: Text(
+                      'Accessible by: ${type.accessibility.name.replaceFirst(type.accessibility.name[0], type.accessibility.name[0].toUpperCase())}',
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () => showOrderTypeDialog(orderType: type),
+                          icon: const Icon(Icons.edit_outlined),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text(e.toString())),
+                        IconButton(
+                          onPressed: () => controller.deleteOrderType(type.id),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.redAccent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, st) => Center(child: Text(e.toString())),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: showOrderTypeDialog,

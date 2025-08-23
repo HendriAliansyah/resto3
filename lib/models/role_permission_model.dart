@@ -13,6 +13,7 @@ enum PagePermission {
   accessOrderTypeMaster,
   accessMenuMaster,
   accessInventoryMaster,
+  accessPackageMaster,
 }
 
 // Maps each user role to a list of pages they are allowed to access.
@@ -26,6 +27,7 @@ const Map<UserRole, List<PagePermission>> rolePermissions = {
     PagePermission.accessOrderTypeMaster,
     PagePermission.accessMenuMaster,
     PagePermission.accessInventoryMaster,
+    PagePermission.accessPackageMaster,
   ],
   UserRole.admin: [
     PagePermission.accessStaffManagement,
@@ -35,6 +37,7 @@ const Map<UserRole, List<PagePermission>> rolePermissions = {
     PagePermission.accessOrderTypeMaster,
     PagePermission.accessMenuMaster,
     PagePermission.accessInventoryMaster,
+    PagePermission.accessPackageMaster,
   ],
   UserRole.manager: [
     PagePermission.accessTableTypeMaster,

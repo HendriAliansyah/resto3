@@ -51,120 +51,122 @@ class NotificationPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text(UIStrings.notificationsTitle)),
       drawer: const AppDrawer(),
-      body: notificationsAsync.when(
-        data: (notifications) {
-          // **THE ENHANCEMENT IS HERE:**
-          // A more informative and visually appealing empty state for notifications.
-          if (notifications.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.notifications_paused_outlined,
-                      size: 60,
-                      color: Colors.grey,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      UIStrings.noNotifications,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: notificationsAsync.when(
+          data: (notifications) {
+            // **THE ENHANCEMENT IS HERE:**
+            // A more informative and visually appealing empty state for notifications.
+            if (notifications.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.notifications_paused_outlined,
+                        size: 60,
+                        color: Colors.grey,
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      UIStrings.noNotificationsMessage,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-          return ListView.builder(
-            itemCount: notifications.length,
-            itemBuilder: (context, index) {
-              final notification = notifications[index];
-              final String subtitle = switch (notification.payload) {
-                GenericPayload p => p.message,
-                JoinRequestPayload _ => UIStrings.joinRequestMessage,
-                JoinRequestResponsePayload p =>
-                  p.wasApproved
-                      ? UIStrings.requestApproved
-                      : UIStrings.requestRejected,
-                _ => UIStrings.newNotification,
-              };
-
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor:
-                      notification.isRead
-                          ? Colors.grey
-                          : Theme.of(context).colorScheme.primary,
-                  child: const Icon(Icons.notifications, color: Colors.white),
-                ),
-                title: Text(
-                  notification.title,
-                  style: TextStyle(
-                    fontWeight:
-                        notification.isRead
-                            ? FontWeight.normal
-                            : FontWeight.bold,
+                      SizedBox(height: 16),
+                      Text(
+                        UIStrings.noNotifications,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        UIStrings.noNotificationsMessage,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
                   ),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      DateFormat.yMMMd().add_jm().format(
-                        notification.createdAt.toDate(),
-                      ),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-                isThreeLine: true,
-                onTap: () {
-                  if (!notification.isRead) {
-                    notificationController.markNotificationAsRead(
-                      notification.id,
-                    );
-                  }
-
-                  switch (notification.payload) {
-                    case JoinRequestPayload():
-                      context.push(AppRoutes.manageStaff);
-                      break;
-                    case GenericPayload p:
-                      showNotificationDialog(notification.title, p.message);
-                      break;
-                    case JoinRequestResponsePayload():
-                      showNotificationDialog(notification.title, subtitle);
-                      break;
-                    default:
-                      showNotificationDialog(notification.title, subtitle);
-                      break;
-                  }
-                },
               );
-            },
-          );
-        },
-        loading: () => const LoadingIndicator(),
-        error:
-            (err, stack) =>
-                const Center(child: Text('Could not load notifications.')),
+            }
+            return ListView.builder(
+              itemCount: notifications.length,
+              itemBuilder: (context, index) {
+                final notification = notifications[index];
+                final String subtitle = switch (notification.payload) {
+                  GenericPayload p => p.message,
+                  JoinRequestPayload _ => UIStrings.joinRequestMessage,
+                  JoinRequestResponsePayload p =>
+                    p.wasApproved
+                        ? UIStrings.requestApproved
+                        : UIStrings.requestRejected,
+                  _ => UIStrings.newNotification,
+                };
+
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor:
+                        notification.isRead
+                            ? Colors.grey
+                            : Theme.of(context).colorScheme.primary,
+                    child: const Icon(Icons.notifications, color: Colors.white),
+                  ),
+                  title: Text(
+                    notification.title,
+                    style: TextStyle(
+                      fontWeight:
+                          notification.isRead
+                              ? FontWeight.normal
+                              : FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat.yMMMd().add_jm().format(
+                          notification.createdAt.toDate(),
+                        ),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                  isThreeLine: true,
+                  onTap: () {
+                    if (!notification.isRead) {
+                      notificationController.markNotificationAsRead(
+                        notification.id,
+                      );
+                    }
+
+                    switch (notification.payload) {
+                      case JoinRequestPayload():
+                        context.push(AppRoutes.manageStaff);
+                        break;
+                      case GenericPayload p:
+                        showNotificationDialog(notification.title, p.message);
+                        break;
+                      case JoinRequestResponsePayload():
+                        showNotificationDialog(notification.title, subtitle);
+                        break;
+                      default:
+                        showNotificationDialog(notification.title, subtitle);
+                        break;
+                    }
+                  },
+                );
+              },
+            );
+          },
+          loading: () => const LoadingIndicator(),
+          error:
+              (err, stack) =>
+                  const Center(child: Text('Could not load notifications.')),
+        ),
       ),
     );
   }

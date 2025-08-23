@@ -86,6 +86,14 @@ class AppDrawer extends ConsumerWidget {
                 false
             : false;
 
+    final bool canAccessPackageMaster =
+        userRole != null
+            ? rolePermissions[userRole]?.contains(
+                  PagePermission.accessPackageMaster,
+                ) ??
+                false
+            : false;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -186,6 +194,16 @@ class AppDrawer extends ConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 context.push(AppRoutes.manageInventory);
+              },
+            ),
+
+          if (canAccessPackageMaster) // You will add this permission
+            ListTile(
+              leading: const Icon(Icons.inventory_outlined),
+              title: const Text('Package Master'),
+              onTap: () {
+                Navigator.pop(context);
+                context.push(AppRoutes.managePackages);
               },
             ),
 

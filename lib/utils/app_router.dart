@@ -9,6 +9,7 @@ import 'package:resto2/views/menu/menu_management_page.dart';
 import 'package:resto2/views/notifications/notification_page.dart';
 import 'package:resto2/views/onboarding/onboarding_screen.dart';
 import 'package:resto2/views/order_type/order_type_management_page.dart';
+import 'package:resto2/views/package/package_management_page.dart';
 import 'package:resto2/views/restaurant/master_restaurant_page.dart';
 import 'package:resto2/views/settings/settings_page.dart';
 import 'package:resto2/views/staff/edit_staff_page.dart';
@@ -96,6 +97,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.manageInventory,
         builder: (context, state) => const InventoryManagementPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.managePackages,
+        builder: (context, state) => const PackageManagementPage(),
       ),
     ],
     redirect: (BuildContext context, GoRouterState state) {

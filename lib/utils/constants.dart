@@ -18,6 +18,7 @@ class AppRoutes {
   static const String manageOrderTypes = '/manage-order-types';
   static const String manageMenu = '/manage-menu';
   static const String manageInventory = '/manage-inventory';
+  static const String managePackages = '/manage-packages';
 }
 
 // UI String Constants
@@ -83,6 +84,9 @@ class UIStrings {
   static const String phoneNumberHint = '08123654789';
   static const String saveChanges = 'Save Changes';
   static const String saving = 'Saving...';
+
+  // Package Management
+  static const String packageManagement = 'Package Management';
 
   // Staff Management
   static const String staffManagement = 'Staff Management';

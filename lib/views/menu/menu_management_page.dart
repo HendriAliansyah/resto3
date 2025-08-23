@@ -32,163 +32,166 @@ class MenuManagementPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Menu Master')),
       drawer: const AppDrawer(),
-      body: Column(
-        children: [
-          coursesAsync.when(
-            data:
-                (courses) => FilterExpansionTile(
-                  children: [
-                    TextField(
-                      decoration: const InputDecoration(
-                        labelText: 'Search by Name',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged:
-                          (value) => ref
-                              .read(menuFilterProvider.notifier)
-                              .setSearchQuery(value),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: filterState.courseId,
-                      decoration: const InputDecoration(
-                        labelText: 'Filter by Course',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: [
-                        const DropdownMenuItem(
-                          value: null,
-                          child: Text('All Courses'),
+      body: SafeArea(
+        child: Column(
+          children: [
+            coursesAsync.when(
+              data:
+                  (courses) => FilterExpansionTile(
+                    children: [
+                      TextField(
+                        decoration: const InputDecoration(
+                          labelText: 'Search by Name',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(),
                         ),
-                        ...courses.map(
-                          (course) => DropdownMenuItem(
-                            value: course.id,
-                            child: Text(course.name),
+                        onChanged:
+                            (value) => ref
+                                .read(menuFilterProvider.notifier)
+                                .setSearchQuery(value),
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: filterState.courseId,
+                        decoration: const InputDecoration(
+                          labelText: 'Filter by Course',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('All Courses'),
                           ),
-                        ),
-                      ],
-                      onChanged:
-                          (courseId) => ref
-                              .read(menuFilterProvider.notifier)
-                              .setCourseFilter(courseId),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        DropdownButton<MenuSortOption>(
-                          value: filterState.sortOption,
-                          items: const [
-                            DropdownMenuItem(
-                              value: MenuSortOption.byName,
-                              child: Text('Sort by Name'),
+                          ...courses.map(
+                            (course) => DropdownMenuItem(
+                              value: course.id,
+                              child: Text(course.name),
                             ),
-                            DropdownMenuItem(
-                              value: MenuSortOption.byPrice,
-                              child: Text('Sort by Price'),
-                            ),
-                          ],
-                          onChanged: (option) {
-                            if (option != null) {
-                              ref
-                                  .read(menuFilterProvider.notifier)
-                                  .setSortOption(option);
-                            }
-                          },
-                        ),
-                        SortOrderToggle(
-                          currentOrder: filterState.sortOrder,
-                          onOrderChanged:
-                              (order) => ref
-                                  .read(menuFilterProvider.notifier)
-                                  .setSortOrder(order),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-            loading: () => const SizedBox.shrink(),
-            error: (e, st) => const SizedBox.shrink(),
-          ),
-          Expanded(
-            child: menusAsync.when(
-              data: (_) {
-                if (coursesAsync.isLoading || orderTypesAsync.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final courseMap = {
-                  for (var c in coursesAsync.asData!.value) c.id: c.name,
-                };
-                final orderTypeMap = {
-                  for (var ot in orderTypesAsync.asData!.value) ot.id: ot.name,
-                };
-
-                if (sortedMenus.isEmpty) {
-                  return const Center(child: Text('No menu items found.'));
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: sortedMenus.length,
-                  itemBuilder: (_, index) {
-                    final menu = sortedMenus[index];
-                    final courseName = courseMap[menu.courseId] ?? 'N/A';
-                    final orderTypeName =
-                        orderTypeMap[menu.orderTypeId] ?? 'N/A';
-                    return Card(
-                      clipBehavior: Clip.antiAlias,
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 8,
-                      ),
-                      child: ListTile(
-                        onTap: () => showMenuSheet(menu: menu),
-                        leading: SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child:
-                                menu.imageUrl != null
-                                    ? Image.network(
-                                      menu.imageUrl!,
-                                      fit: BoxFit.cover,
-                                    )
-                                    : Container(
-                                      color: Colors.grey.shade300,
-                                      child: const Icon(
-                                        Icons.image_not_supported,
-                                      ),
-                                    ),
                           ),
-                        ),
-                        title: Text(
-                          menu.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          '$courseName • $orderTypeName',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: Text(
-                          '\$${menu.price.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        ],
+                        onChanged:
+                            (courseId) => ref
+                                .read(menuFilterProvider.notifier)
+                                .setCourseFilter(courseId),
                       ),
-                    );
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, st) => Center(child: Text(e.toString())),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          DropdownButton<MenuSortOption>(
+                            value: filterState.sortOption,
+                            items: const [
+                              DropdownMenuItem(
+                                value: MenuSortOption.byName,
+                                child: Text('Sort by Name'),
+                              ),
+                              DropdownMenuItem(
+                                value: MenuSortOption.byPrice,
+                                child: Text('Sort by Price'),
+                              ),
+                            ],
+                            onChanged: (option) {
+                              if (option != null) {
+                                ref
+                                    .read(menuFilterProvider.notifier)
+                                    .setSortOption(option);
+                              }
+                            },
+                          ),
+                          SortOrderToggle(
+                            currentOrder: filterState.sortOrder,
+                            onOrderChanged:
+                                (order) => ref
+                                    .read(menuFilterProvider.notifier)
+                                    .setSortOrder(order),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+              loading: () => const SizedBox.shrink(),
+              error: (e, st) => const SizedBox.shrink(),
             ),
-          ),
-        ],
+            Expanded(
+              child: menusAsync.when(
+                data: (_) {
+                  if (coursesAsync.isLoading || orderTypesAsync.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final courseMap = {
+                    for (var c in coursesAsync.asData!.value) c.id: c.name,
+                  };
+                  final orderTypeMap = {
+                    for (var ot in orderTypesAsync.asData!.value)
+                      ot.id: ot.name,
+                  };
+
+                  if (sortedMenus.isEmpty) {
+                    return const Center(child: Text('No menu items found.'));
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: sortedMenus.length,
+                    itemBuilder: (_, index) {
+                      final menu = sortedMenus[index];
+                      final courseName = courseMap[menu.courseId] ?? 'N/A';
+                      final orderTypeName =
+                          orderTypeMap[menu.orderTypeId] ?? 'N/A';
+                      return Card(
+                        clipBehavior: Clip.antiAlias,
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 8,
+                        ),
+                        child: ListTile(
+                          onTap: () => showMenuSheet(menu: menu),
+                          leading: SizedBox(
+                            width: 56,
+                            height: 56,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child:
+                                  menu.imageUrl != null
+                                      ? Image.network(
+                                        menu.imageUrl!,
+                                        fit: BoxFit.cover,
+                                      )
+                                      : Container(
+                                        color: Colors.grey.shade300,
+                                        child: const Icon(
+                                          Icons.image_not_supported,
+                                        ),
+                                      ),
+                            ),
+                          ),
+                          title: Text(
+                            menu.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            '$courseName • $orderTypeName',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: Text(
+                            '\$${menu.price.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, st) => Center(child: Text(e.toString())),
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showMenuSheet(),
