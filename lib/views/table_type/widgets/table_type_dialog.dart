@@ -47,29 +47,35 @@ class TableTypeDialog extends HookConsumerWidget {
       }
     }
 
-    return AlertDialog(
-      title: Text(isEditing ? 'Edit Table Type' : 'Add Table Type'),
-      content: Form(
-        key: formKey,
-        child: TextFormField(
-          controller: nameController,
-          decoration: const InputDecoration(labelText: 'Type Name'),
-          validator: (v) => v!.trim().isEmpty ? 'Please enter a name' : null,
+    return GestureDetector(
+      onTap: () {
+        // Dismiss the keyboard when the user taps on an empty space
+        FocusScope.of(context).unfocus();
+      },
+      child: AlertDialog(
+        title: Text(isEditing ? 'Edit Table Type' : 'Add Table Type'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: nameController,
+            decoration: const InputDecoration(labelText: 'Type Name'),
+            validator: (v) => v!.trim().isEmpty ? 'Please enter a name' : null,
+          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: isLoading ? null : () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: isLoading ? null : submit,
+            child:
+                isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Save'),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: isLoading ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: isLoading ? null : submit,
-          child:
-              isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('Save'),
-        ),
-      ],
     );
   }
 }

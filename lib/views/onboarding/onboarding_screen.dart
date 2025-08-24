@@ -67,74 +67,81 @@ class OnboardingScreen extends HookConsumerWidget {
         ],
       ),
       body: SafeArea(
-        child: currentUserAsync.when(
-          data: (appUser) {
-            if (appUser == null) {
-              return const LoadingIndicator();
-            }
-
-            return Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      UIStrings.welcomeUser.replaceFirst(
-                        '{name}',
-                        appUser.displayName ?? 'User',
-                      ),
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: () => context.push(AppRoutes.manageRestaurant),
-                      child: const Text(UIStrings.createNewRestaurant),
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(UIStrings.or, style: TextStyle(fontSize: 16)),
-                    const SizedBox(height: 24),
-                    const Text(
-                      UIStrings.joinExistingRestaurant,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 16),
-                    Form(
-                      key: formKey,
-                      child: TextFormField(
-                        controller: restaurantIdController,
-                        decoration: const InputDecoration(
-                          labelText: UIStrings.restaurantId,
-                          hintText: UIStrings.restaurantIdHint,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter a valid Restaurant ID';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (isRequestLoading.value)
-                      const LoadingIndicator()
-                    else
-                      ElevatedButton(
-                        // THE FIX: The call now correctly matches the function signature.
-                        onPressed: handleSendRequest,
-                        child: const Text(UIStrings.sendJoinRequest),
-                      ),
-                  ],
-                ),
-              ),
-            );
+        child: GestureDetector(
+          onTap: () {
+            // Dismiss the keyboard when the user taps on an empty space
+            FocusScope.of(context).unfocus();
           },
-          loading: () => const LoadingIndicator(),
-          error:
-              (err, stack) => Center(
-                child: Text('Error loading user profile: ${err.toString()}'),
-              ),
+          child: currentUserAsync.when(
+            data: (appUser) {
+              if (appUser == null) {
+                return const LoadingIndicator();
+              }
+
+              return Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        UIStrings.welcomeUser.replaceFirst(
+                          '{name}',
+                          appUser.displayName ?? 'User',
+                        ),
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 32),
+                      ElevatedButton(
+                        onPressed:
+                            () => context.push(AppRoutes.manageRestaurant),
+                        child: const Text(UIStrings.createNewRestaurant),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(UIStrings.or, style: TextStyle(fontSize: 16)),
+                      const SizedBox(height: 24),
+                      const Text(
+                        UIStrings.joinExistingRestaurant,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 16),
+                      Form(
+                        key: formKey,
+                        child: TextFormField(
+                          controller: restaurantIdController,
+                          decoration: const InputDecoration(
+                            labelText: UIStrings.restaurantId,
+                            hintText: UIStrings.restaurantIdHint,
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter a valid Restaurant ID';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (isRequestLoading.value)
+                        const LoadingIndicator()
+                      else
+                        ElevatedButton(
+                          // THE FIX: The call now correctly matches the function signature.
+                          onPressed: handleSendRequest,
+                          child: const Text(UIStrings.sendJoinRequest),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            loading: () => const LoadingIndicator(),
+            error:
+                (err, stack) => Center(
+                  child: Text('Error loading user profile: ${err.toString()}'),
+                ),
+          ),
         ),
       ),
     );

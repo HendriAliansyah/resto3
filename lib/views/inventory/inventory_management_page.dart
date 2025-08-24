@@ -29,105 +29,116 @@ class InventoryManagementPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Inventory Master')),
       drawer: const AppDrawer(),
       body: SafeArea(
-        child: Column(
-          children: [
-            FilterExpansionTile(
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Search by Name',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged:
-                      (value) => ref
-                          .read(inventoryFilterProvider.notifier)
-                          .setSearchQuery(value),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const Text('Sort by Name:'),
-                    const SizedBox(width: 8),
-                    SortOrderToggle(
-                      currentOrder: filterState.sortOrder,
-                      onOrderChanged:
-                          (order) => ref
-                              .read(inventoryFilterProvider.notifier)
-                              .setSortOrder(order),
+        child: GestureDetector(
+          onTap: () {
+            // Dismiss the keyboard when the user taps on an empty space
+            FocusScope.of(context).unfocus();
+          },
+          child: Column(
+            children: [
+              FilterExpansionTile(
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'Search by Name',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
                     ),
-                  ],
-                ),
-              ],
-            ),
-            Expanded(
-              child: inventoryAsync.when(
-                data: (_) {
-                  if (sortedInventory.isEmpty) {
-                    return const Center(
-                      child: Text('No inventory items found.'),
-                    );
-                  }
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(8.0),
-                    itemCount: sortedInventory.length,
-                    itemBuilder: (_, index) {
-                      final item = sortedInventory[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 8,
-                        ),
-                        child: ListTile(
-                          onTap: () => showItemSheet(item: item),
-                          leading: SizedBox(
-                            width: 56,
-                            height: 56,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child:
-                                  item.imageUrl != null
-                                      ? Image.network(
-                                        item.imageUrl!,
-                                        fit: BoxFit.cover,
-                                      )
-                                      : Container(
-                                        color: Colors.grey.shade300,
-                                        child: const Icon(
-                                          Icons.inventory_2_outlined,
-                                        ),
-                                      ),
-                            ),
-                          ),
-                          title: Text(
-                            item.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            item.description,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.redAccent,
-                            ),
-                            onPressed:
-                                () => ref
-                                    .read(inventoryControllerProvider.notifier)
-                                    .deleteInventoryItem(item.id),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text(e.toString())),
+                    onChanged:
+                        (value) => ref
+                            .read(inventoryFilterProvider.notifier)
+                            .setSearchQuery(value),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Text('Sort by Name:'),
+                      const SizedBox(width: 8),
+                      SortOrderToggle(
+                        currentOrder: filterState.sortOrder,
+                        onOrderChanged:
+                            (order) => ref
+                                .read(inventoryFilterProvider.notifier)
+                                .setSortOrder(order),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-          ],
+              Expanded(
+                child: inventoryAsync.when(
+                  data: (_) {
+                    if (sortedInventory.isEmpty) {
+                      return const Center(
+                        child: Text('No inventory items found.'),
+                      );
+                    }
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount: sortedInventory.length,
+                      itemBuilder: (_, index) {
+                        final item = sortedInventory[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 8,
+                          ),
+                          child: ListTile(
+                            onTap: () => showItemSheet(item: item),
+                            leading: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child:
+                                    item.imageUrl != null
+                                        ? Image.network(
+                                          item.imageUrl!,
+                                          fit: BoxFit.cover,
+                                        )
+                                        : Container(
+                                          color: Colors.grey.shade300,
+                                          child: const Icon(
+                                            Icons.inventory_2_outlined,
+                                          ),
+                                        ),
+                              ),
+                            ),
+                            title: Text(
+                              item.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              item.description,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.redAccent,
+                              ),
+                              onPressed:
+                                  () => ref
+                                      .read(
+                                        inventoryControllerProvider.notifier,
+                                      )
+                                      .deleteInventoryItem(item.id),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error: (e, st) => Center(child: Text(e.toString())),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

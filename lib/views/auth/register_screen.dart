@@ -48,140 +48,151 @@ class RegisterScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Create Account',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Start your journey with us',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+        child: GestureDetector(
+          onTap: () {
+            // Dismiss the keyboard when the user taps on an empty space
+            FocusScope.of(context).unfocus();
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Create Account',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-              ),
-              const SizedBox(height: 32),
-              Form(
-                key: formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: displayNameController,
-                      decoration: const InputDecoration(
-                        labelText: UIStrings.displayNameLabel,
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
-                      keyboardType: TextInputType.name,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your name';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: const InputDecoration(
-                        labelText: UIStrings.emailLabel,
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter an email';
-                        }
-                        if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                          return 'Please enter a valid email address';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: !isPasswordVisible.value,
-                      decoration: InputDecoration(
-                        labelText: UIStrings.passwordLabel,
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            isPasswordVisible.value
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                          ),
-                          onPressed:
-                              () =>
-                                  isPasswordVisible.value =
-                                      !isPasswordVisible.value,
+                const SizedBox(height: 8),
+                Text(
+                  'Start your journey with us',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha(153),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: displayNameController,
+                        decoration: const InputDecoration(
+                          labelText: UIStrings.displayNameLabel,
+                          prefixIcon: Icon(Icons.person_outline),
                         ),
+                        keyboardType: TextInputType.name,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
                       ),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters long';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: confirmPasswordController,
-                      obscureText: !isConfirmPasswordVisible.value,
-                      decoration: InputDecoration(
-                        labelText: UIStrings.confirmPasswordLabel,
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            isConfirmPasswordVisible.value
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                          ),
-                          onPressed:
-                              () =>
-                                  isConfirmPasswordVisible.value =
-                                      !isConfirmPasswordVisible.value,
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: emailController,
+                        decoration: const InputDecoration(
+                          labelText: UIStrings.emailLabel,
+                          prefixIcon: Icon(Icons.email_outlined),
                         ),
+                        keyboardType: TextInputType.emailAddress,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter an email';
+                          }
+                          if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                            return 'Please enter a valid email address';
+                          }
+                          return null;
+                        },
                       ),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please confirm your password';
-                        }
-                        if (value != passwordController.text) {
-                          return 'Passwords do not match';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: !isPasswordVisible.value,
+                        decoration: InputDecoration(
+                          labelText: UIStrings.passwordLabel,
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isPasswordVisible.value
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                            ),
+                            onPressed:
+                                () =>
+                                    isPasswordVisible.value =
+                                        !isPasswordVisible.value,
+                          ),
+                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a password';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters long';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        obscureText: !isConfirmPasswordVisible.value,
+                        decoration: InputDecoration(
+                          labelText: UIStrings.confirmPasswordLabel,
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isConfirmPasswordVisible.value
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                            ),
+                            onPressed:
+                                () =>
+                                    isConfirmPasswordVisible.value =
+                                        !isConfirmPasswordVisible.value,
+                          ),
+                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              if (isLoading)
-                const Center(child: LoadingIndicator())
-              else
-                ElevatedButton(
-                  onPressed: handleRegister,
-                  child: const Text(UIStrings.registerButton),
+                const SizedBox(height: 32),
+                if (isLoading)
+                  const Center(child: LoadingIndicator())
+                else
+                  ElevatedButton(
+                    onPressed: handleRegister,
+                    child: const Text(UIStrings.registerButton),
+                  ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => context.go(AppRoutes.login),
+                  child: const Text(UIStrings.alreadyHaveAccount),
                 ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => context.go(AppRoutes.login),
-                child: const Text(UIStrings.alreadyHaveAccount),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

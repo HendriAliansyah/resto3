@@ -1,5 +1,3 @@
-// lib/views/package/widgets/package_bottom_sheet.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -112,220 +110,227 @@ class PackageBottomSheet extends HookConsumerWidget {
       }
     }
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              isEditing ? 'Edit Package' : 'Add New Package',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-          ),
-          const Divider(height: 1),
-          Flexible(
-            child: SingleChildScrollView(
+    return GestureDetector(
+      onTap: () {
+        // Dismiss the keyboard when the user taps on an empty space
+        FocusScope.of(context).unfocus();
+      },
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    InkWell(
-                      onTap: pickImage,
-                      child: AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Theme.of(context).dividerColor,
+              child: Text(
+                isEditing ? 'Edit Package' : 'Add New Package',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ),
+            const Divider(height: 1),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      InkWell(
+                        onTap: pickImage,
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                              image:
+                                  localImageFile.value != null
+                                      ? DecorationImage(
+                                        image: FileImage(localImageFile.value!),
+                                        fit: BoxFit.fill,
+                                      )
+                                      : (package?.imageUrl != null
+                                          ? DecorationImage(
+                                            image: NetworkImage(
+                                              package!.imageUrl!,
+                                            ),
+                                            fit: BoxFit.fill,
+                                          )
+                                          : null),
                             ),
-                            image:
-                                localImageFile.value != null
-                                    ? DecorationImage(
-                                      image: FileImage(localImageFile.value!),
-                                      fit: BoxFit.fill,
-                                    )
-                                    : (package?.imageUrl != null
-                                        ? DecorationImage(
-                                          image: NetworkImage(
-                                            package!.imageUrl!,
+                            child:
+                                localImageFile.value == null &&
+                                        package?.imageUrl == null
+                                    ? const Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.add_a_photo_outlined,
+                                            size: 48,
                                           ),
-                                          fit: BoxFit.fill,
-                                        )
-                                        : null),
+                                          SizedBox(height: 8),
+                                          Text('Tap to add image'),
+                                        ],
+                                      ),
+                                    )
+                                    : null,
                           ),
-                          child:
-                              localImageFile.value == null &&
-                                      package?.imageUrl == null
-                                  ? const Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.add_a_photo_outlined,
-                                          size: 48,
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text('Tap to add image'),
-                                      ],
-                                    ),
-                                  )
-                                  : null,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Name'),
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: descController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: nameController,
+                        decoration: const InputDecoration(labelText: 'Name'),
+                        validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),
-                      maxLines: 3,
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: priceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Price',
-                        prefixText: '\$ ',
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d+\.?\d{0,2}'),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: descController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
                         ),
-                      ],
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField2<String>(
-                      value: selectedCourseId.value,
-                      items:
-                          courses
-                              .map(
-                                (c) => DropdownMenuItem(
-                                  value: c.id,
-                                  child: Text(c.name),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (v) => selectedCourseId.value = v,
-                      decoration: const InputDecoration(
-                        labelText: 'Course',
-                        contentPadding: EdgeInsets.zero,
-                        border: OutlineInputBorder(),
+                        maxLines: 3,
+                        validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),
-                      buttonStyleData: const ButtonStyleData(
-                        height: 50,
-                        padding: EdgeInsets.only(right: 10),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: priceController,
+                        decoration: const InputDecoration(
+                          labelText: 'Price',
+                          prefixText: '\$ ',
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+\.?\d{0,2}'),
+                          ),
+                        ],
+                        validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),
-                      validator: (v) => v == null ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField2<String>(
-                      value: selectedOrderTypeId.value,
-                      items:
-                          orderTypes
-                              .map(
-                                (ot) => DropdownMenuItem(
-                                  value: ot.id,
-                                  child: Text(ot.name),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (v) => selectedOrderTypeId.value = v,
-                      decoration: const InputDecoration(
-                        labelText: 'Order Type',
-                        contentPadding: EdgeInsets.zero,
-                        border: OutlineInputBorder(),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField2<String>(
+                        value: selectedCourseId.value,
+                        items:
+                            courses
+                                .map(
+                                  (c) => DropdownMenuItem(
+                                    value: c.id,
+                                    child: Text(c.name),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged: (v) => selectedCourseId.value = v,
+                        decoration: const InputDecoration(
+                          labelText: 'Course',
+                          contentPadding: EdgeInsets.zero,
+                          border: OutlineInputBorder(),
+                        ),
+                        buttonStyleData: const ButtonStyleData(
+                          height: 50,
+                          padding: EdgeInsets.only(right: 10),
+                        ),
+                        validator: (v) => v == null ? 'Required' : null,
                       ),
-                      buttonStyleData: const ButtonStyleData(
-                        height: 50,
-                        padding: EdgeInsets.only(right: 10),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField2<String>(
+                        value: selectedOrderTypeId.value,
+                        items:
+                            orderTypes
+                                .map(
+                                  (ot) => DropdownMenuItem(
+                                    value: ot.id,
+                                    child: Text(ot.name),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged: (v) => selectedOrderTypeId.value = v,
+                        decoration: const InputDecoration(
+                          labelText: 'Order Type',
+                          contentPadding: EdgeInsets.zero,
+                          border: OutlineInputBorder(),
+                        ),
+                        buttonStyleData: const ButtonStyleData(
+                          height: 50,
+                          padding: EdgeInsets.only(right: 10),
+                        ),
+                        validator: (v) => v == null ? 'Required' : null,
                       ),
-                      validator: (v) => v == null ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    MultiSelectBottomSheetField<MenuModel>(
-                      initialValue:
-                          menus
-                              .where(
-                                (m) => selectedMenuItems.value.contains(m.id),
-                              )
-                              .toList(),
-                      items: menus,
-                      dialogTitle: 'Menu Items',
-                      searchHint: 'Search for menu items',
-                      chipLabelBuilder: (menu) => Text(menu.name),
-                      tileLabelBuilder: (menu) => Text(menu.name),
-                      onSaved: (selected) {
-                        selectedMenuItems.value =
-                            selected?.map((m) => m.id).toList() ?? [];
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    MultiSelectBottomSheetField<InventoryItem>(
-                      initialValue:
-                          inventories
-                              .where(
-                                (i) =>
-                                    selectedInventoryItems.value.contains(i.id),
-                              )
-                              .toList(),
-                      items: inventories,
-                      dialogTitle: 'Inventory Items',
-                      searchHint: 'Search for inventory items',
-                      chipLabelBuilder: (inventory) => Text(inventory.name),
-                      tileLabelBuilder: (inventory) => Text(inventory.name),
-                      onSaved: (selected) {
-                        selectedInventoryItems.value =
-                            selected?.map((i) => i.id).toList() ?? [];
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      MultiSelectBottomSheetField<MenuModel>(
+                        initialValue:
+                            menus
+                                .where(
+                                  (m) => selectedMenuItems.value.contains(m.id),
+                                )
+                                .toList(),
+                        items: menus,
+                        dialogTitle: 'Menu Items',
+                        searchHint: 'Search for menu items',
+                        chipLabelBuilder: (menu) => Text(menu.name),
+                        tileLabelBuilder: (menu) => Text(menu.name),
+                        onSaved: (selected) {
+                          selectedMenuItems.value =
+                              selected?.map((m) => m.id).toList() ?? [];
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      MultiSelectBottomSheetField<InventoryItem>(
+                        initialValue:
+                            inventories
+                                .where(
+                                  (i) => selectedInventoryItems.value.contains(
+                                    i.id,
+                                  ),
+                                )
+                                .toList(),
+                        items: inventories,
+                        dialogTitle: 'Inventory Items',
+                        searchHint: 'Search for inventory items',
+                        chipLabelBuilder: (inventory) => Text(inventory.name),
+                        tileLabelBuilder: (inventory) => Text(inventory.name),
+                        onSaved: (selected) {
+                          selectedInventoryItems.value =
+                              selected?.map((i) => i.id).toList() ?? [];
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                ),
+                onPressed: isLoading ? null : submit,
+                child:
+                    isLoading
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            color: Colors.white,
+                          ),
+                        )
+                        : const Text('Save'),
               ),
-              onPressed: isLoading ? null : submit,
-              child:
-                  isLoading
-                      ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                          color: Colors.white,
-                        ),
-                      )
-                      : const Text('Save'),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

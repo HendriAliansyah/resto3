@@ -51,46 +51,52 @@ class ForgotPasswordScreen extends HookConsumerWidget {
         elevation: 0,
       ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Receive a reset link',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Enter your account email below to receive a password reset link.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withAlpha(153),
+        child: GestureDetector(
+          onTap: () {
+            // Dismiss the keyboard when the user taps on an empty space
+            FocusScope.of(context).unfocus();
+          },
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Receive a reset link',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: UIStrings.emailLabel,
-                    prefixIcon: Icon(Icons.email_outlined),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Enter your account email below to receive a password reset link.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha(153),
+                    ),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 24),
-                if (isLoading)
-                  const LoadingIndicator()
-                else
-                  ElevatedButton(
-                    onPressed: handleResetPassword,
-                    child: const Text(UIStrings.resetButton),
+                  const SizedBox(height: 32),
+                  TextFormField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      labelText: UIStrings.emailLabel,
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
                   ),
-              ],
+                  const SizedBox(height: 24),
+                  if (isLoading)
+                    const LoadingIndicator()
+                  else
+                    ElevatedButton(
+                      onPressed: handleResetPassword,
+                      child: const Text(UIStrings.resetButton),
+                    ),
+                ],
+              ),
             ),
           ),
         ),

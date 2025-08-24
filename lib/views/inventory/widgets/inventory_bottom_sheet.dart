@@ -70,102 +70,112 @@ class InventoryBottomSheet extends HookConsumerWidget {
       }
     }
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              isEditing ? 'Edit Item' : 'Add New Item',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-          ),
-          const Divider(height: 1),
-          Flexible(
-            child: SingleChildScrollView(
+    return GestureDetector(
+      onTap: () {
+        // Dismiss the keyboard when the user taps on an empty space
+        FocusScope.of(context).unfocus();
+      },
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // THE FIX IS HERE: Matched the structure from the MenuBottomSheet
-                    InkWell(
-                      onTap: pickImage,
-                      child: AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Theme.of(context).dividerColor,
+              child: Text(
+                isEditing ? 'Edit Item' : 'Add New Item',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ),
+            const Divider(height: 1),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // THE FIX IS HERE: Matched the structure from the MenuBottomSheet
+                      InkWell(
+                        onTap: pickImage,
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                              image:
+                                  localImageFile.value != null
+                                      ? DecorationImage(
+                                        image: FileImage(localImageFile.value!),
+                                        fit: BoxFit.fill,
+                                      )
+                                      : (item?.imageUrl != null
+                                          ? DecorationImage(
+                                            image: NetworkImage(
+                                              item!.imageUrl!,
+                                            ),
+                                            fit: BoxFit.fill,
+                                          )
+                                          : null),
                             ),
-                            image:
-                                localImageFile.value != null
-                                    ? DecorationImage(
-                                      image: FileImage(localImageFile.value!),
-                                      fit: BoxFit.fill,
+                            child:
+                                localImageFile.value == null &&
+                                        item?.imageUrl == null
+                                    ? const Center(
+                                      child: Icon(
+                                        Icons.add_a_photo_outlined,
+                                        size: 48,
+                                      ),
                                     )
-                                    : (item?.imageUrl != null
-                                        ? DecorationImage(
-                                          image: NetworkImage(item!.imageUrl!),
-                                          fit: BoxFit.fill,
-                                        )
-                                        : null),
+                                    : null,
                           ),
-                          child:
-                              localImageFile.value == null &&
-                                      item?.imageUrl == null
-                                  ? const Center(
-                                    child: Icon(
-                                      Icons.add_a_photo_outlined,
-                                      size: 48,
-                                    ),
-                                  )
-                                  : null,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Item Name'),
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description (e.g., from Supplier X)',
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Item Name',
+                        ),
+                        validator: (v) => v!.trim().isEmpty ? 'Required' : null,
                       ),
-                      maxLines: 2,
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description (e.g., from Supplier X)',
+                        ),
+                        maxLines: 2,
+                        validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                ),
+                onPressed: isLoading ? null : submit,
+                child:
+                    isLoading
+                        ? const CircularProgressIndicator()
+                        : const Text('Save'),
               ),
-              onPressed: isLoading ? null : submit,
-              child:
-                  isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Save'),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
