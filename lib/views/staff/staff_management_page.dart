@@ -1,6 +1,10 @@
+// lib/views/staff/staff_management_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart'; // THE FIX IS HERE
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:resto2/models/join_request_model.dart';
 import 'package:resto2/models/role_permission_model.dart';
 import 'package:resto2/providers/auth_providers.dart';
@@ -45,7 +49,8 @@ class StaffManagementPage extends HookConsumerWidget {
   }
 }
 
-class CurrentStaffView extends ConsumerWidget {
+class CurrentStaffView extends HookConsumerWidget {
+  // THE FIX IS HERE
   const CurrentStaffView({super.key});
 
   @override
@@ -53,6 +58,7 @@ class CurrentStaffView extends ConsumerWidget {
     final staffListAsync = ref.watch(staffListStreamProvider);
     final filterState = ref.watch(staffFilterProvider);
     final sortedStaffList = ref.watch(sortedStaffProvider);
+    final searchFocusNode = useFocusNode(); // THE FIX IS HERE
 
     return staffListAsync.when(
       data: (_) {
@@ -60,7 +66,8 @@ class CurrentStaffView extends ConsumerWidget {
           children: [
             FilterExpansionTile(
               children: [
-                TextField(
+                TextFormField(
+                  focusNode: searchFocusNode, // THE FIX IS HERE
                   decoration: const InputDecoration(
                     labelText: 'Search by Name or Email',
                     prefixIcon: Icon(Icons.search),
@@ -73,13 +80,23 @@ class CurrentStaffView extends ConsumerWidget {
                   },
                 ),
                 const SizedBox(height: 16),
-                // New Dropdown for role filter
-                DropdownButtonFormField<UserRole>(
+                DropdownButtonFormField2<UserRole?>(
                   value: filterState.role,
                   decoration: const InputDecoration(
                     labelText: 'Filter by Role',
                     border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.zero,
                   ),
+                  buttonStyleData: const ButtonStyleData(
+                    height: 50,
+                    padding: EdgeInsets.only(right: 10),
+                  ),
+                  onMenuStateChange: (isOpen) {
+                    // THE FIX IS HERE
+                    if (isOpen) {
+                      searchFocusNode.unfocus();
+                    }
+                  },
                   items: [
                     const DropdownMenuItem(
                       value: null,
@@ -98,29 +115,45 @@ class CurrentStaffView extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    DropdownButton<StaffSortOption>(
-                      value: filterState.sortOption,
-                      items: const [
-                        DropdownMenuItem(
-                          value: StaffSortOption.byRole,
-                          child: Text('Sort by Role'),
+                    Expanded(
+                      child: DropdownButtonFormField2<StaffSortOption>(
+                        value: filterState.sortOption,
+                        decoration: const InputDecoration(
+                          labelText: 'Sort by',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.zero,
                         ),
-                        DropdownMenuItem(
-                          value: StaffSortOption.byName,
-                          child: Text('Sort by Name'),
+                        buttonStyleData: const ButtonStyleData(
+                          height: 50,
+                          padding: EdgeInsets.only(right: 10),
                         ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          ref
-                              .read(staffFilterProvider.notifier)
-                              .setSortOption(value);
-                        }
-                      },
+                        onMenuStateChange: (isOpen) {
+                          // THE FIX IS HERE
+                          if (isOpen) {
+                            searchFocusNode.unfocus();
+                          }
+                        },
+                        items: const [
+                          DropdownMenuItem(
+                            value: StaffSortOption.byRole,
+                            child: Text('Role'),
+                          ),
+                          DropdownMenuItem(
+                            value: StaffSortOption.byName,
+                            child: Text('Name'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            ref
+                                .read(staffFilterProvider.notifier)
+                                .setSortOption(value);
+                          }
+                        },
+                      ),
                     ),
                     const SizedBox(width: 16),
                     SortOrderToggle(
-                      // Assuming SortOrderToggle is in your project
                       currentOrder: filterState.sortOrder,
                       onOrderChanged: (order) {
                         ref
@@ -174,7 +207,6 @@ class CurrentStaffView extends ConsumerWidget {
   }
 }
 
-// "Join Requests" tab remains the same
 class JoinRequestsView extends ConsumerWidget {
   const JoinRequestsView({super.key});
 

@@ -1,9 +1,12 @@
+// lib/views/menu/widgets/menu_bottom_sheet.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:resto2/models/menu_model.dart';
 import 'package:resto2/providers/course_provider.dart';
 import 'package:resto2/providers/menu_provider.dart';
@@ -16,7 +19,6 @@ class MenuBottomSheet extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ... (State and controller setup remains the same)
     final isEditing = menu != null;
     final nameController = useTextEditingController(text: menu?.name);
     final descController = useTextEditingController(text: menu?.description);
@@ -36,7 +38,7 @@ class MenuBottomSheet extends HookConsumerWidget {
     ref.listen<MenuState>(menuControllerProvider, (prev, next) {
       if (next.status == MenuActionStatus.success) {
         if (context.mounted) Navigator.of(context).pop();
-        showSnackBar(context, 'Menu item saved!');
+        showSnackBar(context, 'Menu saved!');
       }
       if (next.status == MenuActionStatus.error) {
         showSnackBar(
@@ -58,7 +60,6 @@ class MenuBottomSheet extends HookConsumerWidget {
     }
 
     void submit() {
-      // ... (Submit logic remains the same)
       if (formKey.currentState?.validate() ?? false) {
         if (selectedCourseId.value == null ||
             selectedOrderTypeId.value == null) {
@@ -105,7 +106,7 @@ class MenuBottomSheet extends HookConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              isEditing ? 'Edit Menu Item' : 'Add New Menu Item',
+              isEditing ? 'Edit Menu' : 'Add New Menu',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
@@ -133,14 +134,12 @@ class MenuBottomSheet extends HookConsumerWidget {
                                 localImageFile.value != null
                                     ? DecorationImage(
                                       image: FileImage(localImageFile.value!),
-                                      // THE FIX IS HERE
-                                      fit: BoxFit.fill,
+                                      fit: BoxFit.cover,
                                     )
                                     : (menu?.imageUrl != null
                                         ? DecorationImage(
                                           image: NetworkImage(menu!.imageUrl!),
-                                          // AND HERE
-                                          fit: BoxFit.fill,
+                                          fit: BoxFit.cover,
                                         )
                                         : null),
                           ),
@@ -166,7 +165,6 @@ class MenuBottomSheet extends HookConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // ... (Rest of the form fields remain the same)
                     TextFormField(
                       controller: nameController,
                       decoration: const InputDecoration(labelText: 'Name'),
@@ -199,7 +197,7 @@ class MenuBottomSheet extends HookConsumerWidget {
                       validator: (v) => v!.isEmpty ? 'Required' : null,
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField2<String>(
                       value: selectedCourseId.value,
                       items:
                           courses
@@ -211,11 +209,19 @@ class MenuBottomSheet extends HookConsumerWidget {
                               )
                               .toList(),
                       onChanged: (v) => selectedCourseId.value = v,
-                      decoration: const InputDecoration(labelText: 'Course'),
+                      decoration: const InputDecoration(
+                        labelText: 'Course',
+                        contentPadding: EdgeInsets.zero,
+                        border: OutlineInputBorder(),
+                      ),
+                      buttonStyleData: const ButtonStyleData(
+                        height: 50,
+                        padding: EdgeInsets.only(right: 10),
+                      ),
                       validator: (v) => v == null ? 'Required' : null,
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField2<String>(
                       value: selectedOrderTypeId.value,
                       items:
                           orderTypes
@@ -229,6 +235,12 @@ class MenuBottomSheet extends HookConsumerWidget {
                       onChanged: (v) => selectedOrderTypeId.value = v,
                       decoration: const InputDecoration(
                         labelText: 'Order Type',
+                        contentPadding: EdgeInsets.zero,
+                        border: OutlineInputBorder(),
+                      ),
+                      buttonStyleData: const ButtonStyleData(
+                        height: 50,
+                        padding: EdgeInsets.only(right: 10),
                       ),
                       validator: (v) => v == null ? 'Required' : null,
                     ),

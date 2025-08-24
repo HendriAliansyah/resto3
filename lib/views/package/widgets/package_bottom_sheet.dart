@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:resto2/models/inventory_item_model.dart';
 import 'package:resto2/models/menu_model.dart';
 import 'package:resto2/models/package_model.dart';
@@ -214,7 +215,7 @@ class PackageBottomSheet extends HookConsumerWidget {
                       validator: (v) => v!.isEmpty ? 'Required' : null,
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField2<String>(
                       value: selectedCourseId.value,
                       items:
                           courses
@@ -226,11 +227,19 @@ class PackageBottomSheet extends HookConsumerWidget {
                               )
                               .toList(),
                       onChanged: (v) => selectedCourseId.value = v,
-                      decoration: const InputDecoration(labelText: 'Course'),
+                      decoration: const InputDecoration(
+                        labelText: 'Course',
+                        contentPadding: EdgeInsets.zero,
+                        border: OutlineInputBorder(),
+                      ),
+                      buttonStyleData: const ButtonStyleData(
+                        height: 50,
+                        padding: EdgeInsets.only(right: 10),
+                      ),
                       validator: (v) => v == null ? 'Required' : null,
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField2<String>(
                       value: selectedOrderTypeId.value,
                       items:
                           orderTypes
@@ -244,6 +253,12 @@ class PackageBottomSheet extends HookConsumerWidget {
                       onChanged: (v) => selectedOrderTypeId.value = v,
                       decoration: const InputDecoration(
                         labelText: 'Order Type',
+                        contentPadding: EdgeInsets.zero,
+                        border: OutlineInputBorder(),
+                      ),
+                      buttonStyleData: const ButtonStyleData(
+                        height: 50,
+                        padding: EdgeInsets.only(right: 10),
                       ),
                       validator: (v) => v == null ? 'Required' : null,
                     ),

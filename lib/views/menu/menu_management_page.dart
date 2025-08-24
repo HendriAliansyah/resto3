@@ -1,5 +1,8 @@
+// lib/views/menu/menu_management_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:resto2/models/menu_model.dart';
 import 'package:resto2/providers/course_provider.dart';
 import 'package:resto2/providers/menu_filter_provider.dart';
@@ -51,11 +54,16 @@ class MenuManagementPage extends ConsumerWidget {
                                 .setSearchQuery(value),
                       ),
                       const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
+                      DropdownButtonFormField2<String>(
                         value: filterState.courseId,
                         decoration: const InputDecoration(
                           labelText: 'Filter by Course',
                           border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        buttonStyleData: const ButtonStyleData(
+                          height: 50,
+                          padding: EdgeInsets.only(right: 10),
                         ),
                         items: [
                           const DropdownMenuItem(
@@ -78,26 +86,38 @@ class MenuManagementPage extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          DropdownButton<MenuSortOption>(
-                            value: filterState.sortOption,
-                            items: const [
-                              DropdownMenuItem(
-                                value: MenuSortOption.byName,
-                                child: Text('Sort by Name'),
+                          Expanded(
+                            child: DropdownButtonFormField2<MenuSortOption>(
+                              value: filterState.sortOption,
+                              decoration: const InputDecoration(
+                                labelText: 'Sort by',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.zero,
                               ),
-                              DropdownMenuItem(
-                                value: MenuSortOption.byPrice,
-                                child: Text('Sort by Price'),
+                              buttonStyleData: const ButtonStyleData(
+                                height: 50,
+                                padding: EdgeInsets.only(right: 10),
                               ),
-                            ],
-                            onChanged: (option) {
-                              if (option != null) {
-                                ref
-                                    .read(menuFilterProvider.notifier)
-                                    .setSortOption(option);
-                              }
-                            },
+                              items: const [
+                                DropdownMenuItem(
+                                  value: MenuSortOption.byName,
+                                  child: Text('Name'),
+                                ),
+                                DropdownMenuItem(
+                                  value: MenuSortOption.byPrice,
+                                  child: Text('Price'),
+                                ),
+                              ],
+                              onChanged: (option) {
+                                if (option != null) {
+                                  ref
+                                      .read(menuFilterProvider.notifier)
+                                      .setSortOption(option);
+                                }
+                              },
+                            ),
                           ),
+                          const SizedBox(width: 16),
                           SortOrderToggle(
                             currentOrder: filterState.sortOrder,
                             onOrderChanged:

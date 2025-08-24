@@ -1,180 +1,162 @@
+// lib/views/table/table_management_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:resto2/models/table_model.dart';
+import 'package:resto2/models/table_type_model.dart';
 import 'package:resto2/providers/table_filter_provider.dart';
 import 'package:resto2/providers/table_provider.dart';
 import 'package:resto2/providers/table_type_provider.dart';
 import 'package:resto2/views/table/widgets/table_dialog.dart';
 import 'package:resto2/views/widgets/app_drawer.dart';
 import 'package:resto2/views/widgets/filter_expansion_tile.dart';
-import 'package:resto2/views/widgets/sort_order_toggle.dart'; // Import this
+import 'package:resto2/views/widgets/sort_order_toggle.dart';
 
 class TableManagementPage extends ConsumerWidget {
   const TableManagementPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tablesAsync = ref.watch(tablesStreamProvider);
+    final tables = ref.watch(sortedTablesProvider);
     final tableTypesAsync = ref.watch(tableTypesStreamProvider);
-    final sortedTables = ref.watch(
-      sortedTablesProvider,
-    ); // Watch the new provider
-    final filterState = ref.watch(tableFilterProvider);
+    final filter = ref.watch(tableFilterProvider);
+    final filterNotifier = ref.read(tableFilterProvider.notifier);
 
     void showTableDialog({TableModel? table}) {
       showDialog(context: context, builder: (_) => TableDialog(table: table));
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Table Master')),
+      appBar: AppBar(title: const Text('Table Management')),
       drawer: const AppDrawer(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            tableTypesAsync.when(
-              data:
-                  (tableTypes) => FilterExpansionTile(
-                    children: [
-                      TextField(
-                        decoration: const InputDecoration(
-                          labelText: 'Search by Name',
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(),
-                        ),
-                        onChanged:
-                            (value) => ref
-                                .read(tableFilterProvider.notifier)
-                                .setSearchQuery(value),
+      body: Column(
+        children: [
+          tableTypesAsync.when(
+            data:
+                (tableTypes) => FilterExpansionTile(
+                  children: [
+                    TextFormField(
+                      initialValue: filter.searchQuery,
+                      decoration: const InputDecoration(
+                        labelText: 'Search by Name',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.search),
                       ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: filterState.tableTypeId,
-                        decoration: const InputDecoration(
-                          labelText: 'Filter by Type',
-                          border: OutlineInputBorder(),
+                      onChanged:
+                          (value) => filterNotifier.setSearchQuery(value),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField2<String?>(
+                      value: filter.tableTypeId,
+                      decoration: const InputDecoration(
+                        labelText: 'Filter by Type',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      buttonStyleData: const ButtonStyleData(
+                        height: 50,
+                        padding: EdgeInsets.only(right: 10),
+                      ),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('All Types'),
                         ),
-                        items: [
-                          const DropdownMenuItem(
-                            value: null,
-                            child: Text('All Types'),
+                        ...tableTypes.map(
+                          (type) => DropdownMenuItem(
+                            value: type.id,
+                            child: Text(type.name),
                           ),
-                          ...tableTypes.map(
-                            (type) => DropdownMenuItem(
-                              value: type.id,
-                              child: Text(type.name),
+                        ),
+                      ],
+                      onChanged:
+                          (value) => filterNotifier.setTableTypeFilter(value),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField2<TableSortOption>(
+                            value: filter.sortOption,
+                            decoration: const InputDecoration(
+                              labelText: 'Sort by',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.zero,
                             ),
-                          ),
-                        ],
-                        onChanged:
-                            (typeId) => ref
-                                .read(tableFilterProvider.notifier)
-                                .setTableTypeFilter(typeId),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Dropdown for sorting criteria
-                          DropdownButton<TableSortOption>(
-                            value: filterState.sortOption,
-                            items: const [
-                              DropdownMenuItem(
-                                value: TableSortOption.byName,
-                                child: Text('Sort by Name'),
-                              ),
-                              DropdownMenuItem(
-                                value: TableSortOption.byCapacity,
-                                child: Text('Sort by Capacity'),
-                              ),
-                            ],
-                            onChanged: (option) {
-                              if (option != null) {
-                                ref
-                                    .read(tableFilterProvider.notifier)
-                                    .setSortOption(option);
+                            buttonStyleData: const ButtonStyleData(
+                              height: 50,
+                              padding: EdgeInsets.only(right: 10),
+                            ),
+                            items:
+                                TableSortOption.values
+                                    .map(
+                                      (option) => DropdownMenuItem(
+                                        value: option,
+                                        child: Text(
+                                          'By ${option.name.substring(2)}',
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                filterNotifier.setSortOption(value);
                               }
                             },
                           ),
-                          // Use the new reusable widget
-                          SortOrderToggle(
-                            currentOrder: filterState.sortOrder,
-                            onOrderChanged: (order) {
-                              ref
-                                  .read(tableFilterProvider.notifier)
-                                  .setSortOrder(order);
-                            },
-                          ),
-                        ],
+                        ),
+                        const SizedBox(width: 16),
+                        SortOrderToggle(
+                          currentOrder: filter.sortOrder,
+                          onOrderChanged: (order) {
+                            filterNotifier.setSortOrder(order);
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: tables.length,
+              itemBuilder: (context, index) {
+                final table = tables[index];
+                final tableType = tableTypesAsync.asData?.value.firstWhere(
+                  (element) => element.id == table.tableTypeId,
+                  orElse:
+                      () => TableType(id: '', name: 'N/A', restaurantId: ''),
+                );
+                return ListTile(
+                  title: Text(table.name),
+                  subtitle: Text(
+                    '${tableType?.name} • Capacity: ${table.capacity}',
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => showTableDialog(table: table),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          ref
+                              .read(tableControllerProvider.notifier)
+                              .deleteTable(table.id);
+                        },
                       ),
                     ],
                   ),
-              loading: () => const SizedBox.shrink(),
-              error: (e, st) => const SizedBox.shrink(),
+                );
+              },
             ),
-            Expanded(
-              // THE FIX IS HERE: Nest the .when clauses to handle both streams safely.
-              child: tableTypesAsync.when(
-                data: (tableTypes) {
-                  // Now that we know tableTypes has loaded, we can build the typeMap.
-                  final typeMap = {
-                    for (var type in tableTypes) type.id: type.name,
-                  };
-
-                  // Now we can safely check the tables stream.
-                  return tablesAsync.when(
-                    data: (_) {
-                      // We don't need the direct data, we use sortedTables
-                      if (sortedTables.isEmpty) {
-                        return const Center(child: Text('No tables found.'));
-                      }
-                      return ListView.builder(
-                        itemCount: sortedTables.length,
-                        itemBuilder: (_, index) {
-                          final table = sortedTables[index];
-                          final typeName =
-                              typeMap[table.tableTypeId] ?? 'Unknown Type';
-                          return ListTile(
-                            title: Text(table.name),
-                            subtitle: Text(
-                              'Type: $typeName, Capacity: ${table.capacity}',
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit_outlined),
-                                  onPressed:
-                                      () => showTableDialog(table: table),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete_outline,
-                                    color: Colors.redAccent,
-                                  ),
-                                  onPressed:
-                                      () => ref
-                                          .read(
-                                            tableControllerProvider.notifier,
-                                          )
-                                          .deleteTable(table.id),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    loading:
-                        () => const Center(child: CircularProgressIndicator()),
-                    error: (e, st) => Center(child: Text(e.toString())),
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text(e.toString())),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showTableDialog(),
